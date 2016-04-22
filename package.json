@@ -2,13 +2,40 @@
   "name": "card-game-generator",
   "version": "0.1.0",
   "description": "A card game development toolkit",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/1j01/cards.git"
+  },
+  "bugs": {
+    "url": "http://github.com/1j01/cards/issues"
+  },
+  "author": "Isaiah Odhner <isaiahodhner@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "card",
+    "cards",
+    "cardgame",
+    "card-game",
+    "game",
+    "games",
+    "deck",
+    "generator",
+    "renderer",
+    "tabletop",
+    "tabletop-simulator",
+    "ts",
+    "boardgame",
+    "board-game",
+    "game-development",
+    "game-engine"
+  ],
   "main": "src/card-game-generator.coffee",
+  "os": "win32",
   "devDependencies": {
     "async": "^1.5.2",
     "coffee-script": "^1.10.0",
     "nw": "^0.12.3"
   },
-  "os": "win32",
   "dependencies": {
     "mkdirp": "^0.5.1",
     "tmp": "0.0.28"
