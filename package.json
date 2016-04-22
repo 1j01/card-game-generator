@@ -1,13 +1,13 @@
 {
   "name": "card-game-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A card game development toolkit",
   "repository": {
     "type": "git",
-    "url": "http://github.com/1j01/cards.git"
+    "url": "http://github.com/1j01/card-game-generator.git"
   },
   "bugs": {
-    "url": "http://github.com/1j01/cards/issues"
+    "url": "http://github.com/1j01/card-game-generator/issues"
   },
   "author": "Isaiah Odhner <isaiahodhner@gmail.com>",
   "license": "MIT",
