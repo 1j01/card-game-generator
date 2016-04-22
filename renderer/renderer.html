@@ -1,3 +1,41 @@
 <title>Rendering Cards</title>
 <script src="renderer.coffee" type="text/coffeescript"></script>
 <script src="lib/coffee-script.js"></script>
+<style>
+	body {
+		font-family: sans-serif;
+	}
+	body > h1 {
+		margin: 0.5em;
+	}
+	.card-set {
+		width: 7em;
+		height: 10em;
+		padding: 1em;
+		margin: 1em;
+		background: lightgray;
+		border-radius: 0.3em;
+		display: inline-block;
+		vertical-align: bottom;
+		position: relative;
+	}
+	.card-set::after {
+		content: "";
+		position: absolute;
+		bottom: 1em;
+	}
+	.card-set.rendering::after {
+		content: "Rendering...";
+	}
+	.card-set.done::after {
+		content: "Done!";
+	}
+	.card-set.done {
+		content: "Done!";
+		background: green;
+		color: white;
+	}
+	.card-set h2 {
+		margin: 0;
+	}
+</style>

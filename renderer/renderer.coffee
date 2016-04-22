@@ -65,33 +65,58 @@ capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callb
 			, evalDelay
 		, delay
 
+header = document.createElement("h1")
+document.body.appendChild(header)
+header.textContent = "Rendering cards..."
+
+set_container = document.createElement("div")
+document.body.appendChild(set_container)
+
+set_elements = {}
+
 export_set = (set_name, callback)->
+	set_el = set_elements[set_name]
 	console.log "Render #{set_name}"
-	setTimeout ->
-		
-		n_h = if set_name is "Back" then 1 else 10
-		n_v = if set_name is "Back" then 1 else 7
-		
-		capture_options = merge options,
-			width: cardWidth * n_h * scale
-			height: cardHeight * n_v * scale + 39 # magic number 39, maybe related to the magic 38 for Linux above?
-		
-		capture "file://#{page}##{set_name}", capture_options, (buffer)->
-			console.log "Got some image data for #{set_name}"
-			file_name = path.join to, "#{set_name}.png"
-			fs.writeFile file_name, buffer, (err)->
-				return callback err if err
-				console.log "Wrote #{file_name}"
-				callback null
-	, 5000
+	
+	n_h = if set_name is "Back" then 1 else 10
+	n_v = if set_name is "Back" then 1 else 7
+	
+	capture_options = merge options,
+		width: cardWidth * n_h * scale
+		height: cardHeight * n_v * scale + 39 # magic number 39, maybe related to the magic 38 for Linux above?
+	
+	capture "file://#{page}##{set_name}", capture_options, (buffer)->
+		console.log "Got some image data for #{set_name}"
+		file_name = path.join to, "#{set_name}.png"
+		fs.writeFile file_name, buffer, (err)->
+			set_el.classList.remove("rendering")
+			return callback err if err
+			console.log "Wrote #{file_name}"
+			set_el.classList.add("done")
+			callback null
+	
+	set_el.classList.add("rendering")
 
 set_names = ["Back"].concat(Object.keys(cardSets))
 parallel = process.env.PARALLEL_EXPORT in ["on", "ON", "true", "TRUE", "yes", "YES", "1"]
 
+for set_name in set_names
+	set_el = document.createElement("article")
+	set_el.classList.add("card-set")
+	set_header = document.createElement("h2")
+	set_header.textContent = set_name
+	set_el.appendChild(set_header)
+	set_container.appendChild(set_el)
+	set_elements[set_name] = set_el
+
 (if parallel then async.each else async.eachSeries) set_names, export_set,
 	(err)->
 		if err
-			document.body.style.background = "red"
+			# document.body.style.background = "red"
+			# document.body.style.color = "white"
+			document.body.style.color = "red"
+			header.textContent = "Rendering cards failed"
+			document.body.innerHTML += err
 			throw err
 		console.log "done"
 		gui.Window.get().close true

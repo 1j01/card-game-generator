@@ -15,7 +15,7 @@ Don't try to use it just yet.
 
 ## Installation
 
-* Have [Node.js][] and create a project
+* Have [Node.js][]
 * `npm install card-game-generator --save-dev`
 
 
@@ -85,8 +85,6 @@ and the name of the save as it appears in Tabletop Simulator's Chest.
 
 * Make cross-platform (should just need to know what the Tabletop Simulator directory is on platforms other than Windows)
 
-* Better feedback while exporting
-
 * Handle a single array of cards with a default set name (like "Cards")
 
 * Maybe handle card filtering in card-game-generator instead of having the card game project have to handle filtering based on the `location.hash`
@@ -99,6 +97,12 @@ and the name of the save as it appears in Tabletop Simulator's Chest.
 * Export minimal rows of cards
 
 * Handle the case of >= 70 cards in a single deck
+
+* Maybe allow starting card sets off rendering early
+
+* Maybe allow previewing the card sets from the renderer once rendered
+
+* Maybe add some spinners and checkmarks
 
 * Support decks with separate backs for each card
 
