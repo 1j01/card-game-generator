@@ -3,7 +3,8 @@ gui = require "nw.gui"
 fs = require "fs"
 async = require "async"
 
-{page, exportFolder, cardWidth, cardHeight, scale, debug, cardSets} = JSON.parse(gui.App.argv[0])
+json = fs.readFileSync(gui.App.argv[0], "utf8")
+{page, exportFolder, cardWidth, cardHeight, scale, debug, cardSets} = JSON.parse(json)
 
 css = """
 	body {

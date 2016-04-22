@@ -1,5 +1,6 @@
 
 mkdirp = require "mkdirp"
+tmp = require "tmp"
 fs = require "fs"
 path = require "path"
 {spawn} = require "child_process"
@@ -19,8 +20,10 @@ class CardGameGenerator
 		page = path.resolve(page)
 		mkdirp(exportFolder)
 		mkdirp(page)
-		json_args = JSON.stringify({@cardSets, page, exportFolder, cardWidth, cardHeight, scale, debug})
-		nw_process = spawn(nw, [path.join(__dirname, "../exporter"), json_args])
+		args_json = JSON.stringify({@cardSets, page, exportFolder, cardWidth, cardHeight, scale, debug})
+		args_json_file = tmp.fileSync().name
+		fs.writeFileSync(args_json_file, args_json, "utf8")
+		nw_process = spawn(nw, [path.join(__dirname, "../exporter"), args_json_file])
 		nw_process.on "error", callback
 		nw_process.on "exit", (code)->
 			callback() if code is 0
@@ -32,14 +35,14 @@ class CardGameGenerator
 		
 		save_json = JSON.stringify(save, null, 2)
 		
-		fs.writeFileSync "#{exportFolder}/#{saveName}.json", save_json, "utf8"
+		fs.writeFileSync("#{exportFolder}/#{saveName}.json", save_json, "utf8")
 		
 		chest_folder = "#{ts_folder}/Saves/Chest"
-		fs.writeFileSync "#{chest_folder}/#{saveName}.json", save_json, "utf8"
+		fs.writeFileSync("#{chest_folder}/#{saveName}.json", save_json, "utf8")
 		
 		@clearTabletopSimulatorCache()
 	
 	clearTabletopSimulatorCache: ->
 		cache_folder = "#{ts_folder}/Mods/Images"
 		for fname in fs.readdirSync cache_folder
-			fs.unlinkSync "#{cache_folder}/#{fname}"
+			fs.unlinkSync("#{cache_folder}/#{fname}")
