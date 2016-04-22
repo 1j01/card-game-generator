@@ -28,7 +28,10 @@ class CardGameGenerator
 				nw_process = spawn(nw, [path.join(__dirname, "../renderer"), args_json_file])
 				nw_process.on "error", callback
 				nw_process.on "exit", (code)->
-					callback() if code is 0
+					if code is 0
+						callback()
+					else
+						callback(new Error("nw renderer process exited with code #{code}"))
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)

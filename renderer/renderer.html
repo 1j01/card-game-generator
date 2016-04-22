@@ -1,16 +1,18 @@
 <title>Rendering Cards</title>
+<meta charset="utf-8">
 <script src="renderer.coffee" type="text/coffeescript"></script>
 <script src="lib/coffee-script.js"></script>
 <style>
 	body {
 		font-family: sans-serif;
+		font-size: 12px;
 	}
 	body > h1 {
 		margin: 0.5em;
 	}
 	.card-set {
-		width: 7em;
-		height: 10em;
+		width: 10em;
+		height: 14em;
 		padding: 1em;
 		margin: 1em;
 		background: lightgray;
@@ -27,6 +29,9 @@
 	.card-set.rendering::after {
 		content: "Rendering...";
 	}
+	.card-set.saving::after {
+		content: "Saving...";
+	}
 	.card-set.done::after {
 		content: "Done!";
 	}
@@ -38,4 +43,57 @@
 	.card-set h2 {
 		margin: 0;
 	}
+	
+	/* rendering indicator taken from http://projects.lukehaas.me/css-loaders/ */
+	
+	.indicator {
+		margin: 1em auto;
+		/*font-size: 10px;*/
+		position: relative;
+		text-align: center;
+	}
+	.rendering .indicator {
+		text-indent: -9999em;
+		border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+		border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+		border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+		border-left: 1.1em solid #ffffff;
+		-webkit-transform: translateZ(0);
+		-ms-transform: translateZ(0);
+		transform: translateZ(0);
+		-webkit-animation: spin 1.1s infinite linear;
+		animation: spin 1.1s infinite linear;
+	}
+	.rendering .indicator,
+	.rendering .indicator::after {
+		border-radius: 50%;
+		width: 7em;
+		height: 7em;
+	}
+	.done .indicator::after {
+		content: "✓";
+		font-size: 9em;
+		line-height: 1;
+	}
+	@-webkit-keyframes spin {
+		0% {
+			-webkit-transform: rotate(0turn);
+			transform: rotate(0turn);
+		}
+		100% {
+			-webkit-transform: rotate(1turn);
+			transform: rotate(1turn);
+		}
+	}
+	@keyframes spin {
+		0% {
+			-webkit-transform: rotate(0turn);
+			transform: rotate(0turn);
+		}
+		100% {
+			-webkit-transform: rotate(1turn);
+			transform: rotate(1turn);
+		}
+	}
+	
 </style>

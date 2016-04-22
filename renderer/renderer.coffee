@@ -31,7 +31,7 @@ options =
 		style.appendChild(document.createTextNode(css));
 		document.head.appendChild(style);
 	"""
-	delay: 500
+	delay: 0
 	encoding: "binary"
 
 merge = (a, b)->
@@ -87,9 +87,10 @@ export_set = (set_name, callback)->
 	
 	capture "file://#{page}##{set_name}", capture_options, (buffer)->
 		console.log "Got some image data for #{set_name}"
+		set_el.classList.remove("rendering")
+		set_el.classList.add("saving")
 		file_name = path.join to, "#{set_name}.png"
 		fs.writeFile file_name, buffer, (err)->
-			set_el.classList.remove("rendering")
 			return callback err if err
 			console.log "Wrote #{file_name}"
 			set_el.classList.add("done")
@@ -103,9 +104,16 @@ parallel = process.env.PARALLEL_EXPORT in ["on", "ON", "true", "TRUE", "yes", "Y
 for set_name in set_names
 	set_el = document.createElement("article")
 	set_el.classList.add("card-set")
+	
 	set_header = document.createElement("h2")
 	set_header.textContent = set_name
 	set_el.appendChild(set_header)
+	
+	set_el.indicator = document.createElement("div")
+	set_el.indicator.classList.add("loader")
+	set_el.indicator.classList.add("indicator")
+	set_el.appendChild(set_el.indicator)
+	
 	set_container.appendChild(set_el)
 	set_elements[set_name] = set_el
 
@@ -119,4 +127,6 @@ for set_name in set_names
 			document.body.innerHTML += err
 			throw err
 		console.log "done"
-		gui.Window.get().close true
+		setTimeout ->
+			gui.Window.get().close true
+		, 300
