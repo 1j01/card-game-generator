@@ -2,7 +2,6 @@
   "name": "card-game-generator",
   "version": "0.1.0",
   "description": "A card game development toolkit",
-  "scripts": {},
   "main": "src/card-game-generator.coffee",
   "devDependencies": {
     "async": "^1.5.2",

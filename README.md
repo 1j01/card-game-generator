@@ -38,6 +38,7 @@ It needs a lot of video memory.
 
 * API
 
+* Better feedback while exporting
 
 
 [Node.js]: https://nodejs.org/en/
