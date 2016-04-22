@@ -35,7 +35,7 @@ class CardGameGenerator
 		mkdirp to, (err)=>
 			return callback err if err
 			
-			save = create_save({@cardSets, imagesURL, renderedImagesURL})
+			save = create_save({@cardSets, @counters, imagesURL, renderedImagesURL})
 			
 			@ts_save_json = JSON.stringify(save, null, 2)
 			@ts_save_filename = "#{saveName}.json"
