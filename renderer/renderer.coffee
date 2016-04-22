@@ -1,10 +1,11 @@
 
 gui = require "nw.gui"
 fs = require "fs"
+path = require "path"
 async = require "async"
 
 json = fs.readFileSync(gui.App.argv[0], "utf8")
-{page, exportFolder, cardWidth, cardHeight, scale, debug, cardSets} = JSON.parse(json)
+{page, to, cardWidth, cardHeight, scale, debug, cardSets} = JSON.parse(json)
 
 css = """
 	body {
@@ -65,7 +66,7 @@ capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callb
 		, delay
 
 export_set = (set_name, callback)->
-	console.log "Export #{set_name}"
+	console.log "Render #{set_name}"
 	setTimeout ->
 		
 		n_h = if set_name is "Back" then 1 else 10
@@ -77,7 +78,7 @@ export_set = (set_name, callback)->
 		
 		capture "file://#{page}##{set_name}", capture_options, (buffer)->
 			console.log "Got some image data for #{set_name}"
-			file_name = "#{exportFolder}/#{set_name}.png"
+			file_name = path.join to, "#{set_name}.png"
 			fs.writeFile file_name, buffer, (err)->
 				return callback err if err
 				console.log "Wrote #{file_name}"

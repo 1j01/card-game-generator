@@ -128,8 +128,8 @@ module.exports = ({imagesURL, exportedImagesURL, cardSets, counters})->
 		Autoraise: true
 		Sticky: true
 		CustomImage:
-			ImageURL: "#{imagesURL}/counters/#{counter.plus}"
-			ImageSecondaryURL: "#{imagesURL}/counters/#{counter.minus}"
+			ImageURL: "#{imagesURL}/counters/#{counter.obverse ? counter.front}"
+			ImageSecondaryURL: "#{imagesURL}/counters/#{counter.reverse ? counter.back}"
 			WidthScale: 0.0
 			CustomTile:
 				Type: 2

@@ -12,33 +12,42 @@ ts_folder = "#{process.env.USERPROFILE}/Documents/My Games/Tabletop Simulator"
 
 module.exports =
 class CardGameGenerator
-	constructor: ({@cardSets, @counters, @imagesURL, @exportedImagesURL, @saveName})->
+	constructor: ({@cardSets, @counters})->
+		@cardSets ?= {}
 		@counters ?= {}
 	
-	export: ({page, exportFolder, cardWidth, cardHeight, scale, debug}, callback)->
-		exportFolder = path.resolve(exportFolder)
+	renderCards: ({page, to, cardWidth, cardHeight, scale, debug}, callback)->
+		to = path.resolve(to)
 		page = path.resolve(page)
-		mkdirp(exportFolder)
-		mkdirp(page)
-		args_json = JSON.stringify({@cardSets, page, exportFolder, cardWidth, cardHeight, scale, debug})
-		args_json_file = tmp.fileSync().name
-		fs.writeFileSync(args_json_file, args_json, "utf8")
-		nw_process = spawn(nw, [path.join(__dirname, "../exporter"), args_json_file])
-		nw_process.on "error", callback
-		nw_process.on "exit", (code)->
-			callback() if code is 0
+		mkdirp to, (err)=>
+			return callback err if err
+			tmp.file (err, args_json_file)=>
+				return callback err if err
+				args_json = JSON.stringify({@cardSets, page, to, cardWidth, cardHeight, scale, debug})
+				fs.writeFileSync(args_json_file, args_json, "utf8")
+				nw_process = spawn(nw, [path.join(__dirname, "../renderer"), args_json_file])
+				nw_process.on "error", callback
+				nw_process.on "exit", (code)->
+					callback() if code is 0
 	
-	exportToTabletopSimulator: ({exportFolder, saveName})->
-		exportFolder = path.resolve(exportFolder)
-		
-		save = create_save({@imagesURL, @exportedImagesURL, @cardSets})
-		
-		save_json = JSON.stringify(save, null, 2)
-		
-		fs.writeFileSync("#{exportFolder}/#{saveName}.json", save_json, "utf8")
+	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
+		to = path.resolve(to)
+		mkdirp to, (err)=>
+			return callback err if err
+			
+			save = create_save({@cardSets, imagesURL, renderedImagesURL})
+			
+			@ts_save_json = JSON.stringify(save, null, 2)
+			@ts_save_filename = "#{saveName}.json"
+			
+			fs.writeFile "#{to}/#{@ts_save_filename}", @ts_save_json, "utf8", callback
+	
+	exportSaveToTabletopSimulatorChest: ->
+		unless @ts_save_json
+			throw new Error "You must call exportTabletopSimulatorSave first"
 		
 		chest_folder = "#{ts_folder}/Saves/Chest"
-		fs.writeFileSync("#{chest_folder}/#{saveName}.json", save_json, "utf8")
+		fs.writeFileSync("#{chest_folder}/#{@ts_save_filename}", @ts_save_json, "utf8")
 		
 		@clearTabletopSimulatorCache()
 	
