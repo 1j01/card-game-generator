@@ -1,0 +1,6 @@
+{
+  "name": "card-game-exporter",
+  "version": "0.0.0",
+  "description": "Just the nw-based exporting component of card-game-exporter",
+  "main": "export.html"
+}
