@@ -2,14 +2,14 @@
 fs = require "fs"
 path = require "path"
 
-module.exports = ({imagesURL, exportedImagesURL, cardSets, counters})->
+module.exports = ({imagesURL, renderedImagesURL, cardSets, counters})->
 	
 	make_deck = (deck_name, cards_in_set, position_x)->
 		
 		CustomDeck =
 			"1":
-				FaceURL: "#{exportedImagesURL}/#{deck_name}.png"
-				BackURL: "#{exportedImagesURL}/Back.png"
+				FaceURL: "#{renderedImagesURL}/#{deck_name}.png"
+				BackURL: "#{renderedImagesURL}/Back.png"
 				NumWidth: 10,
 				NumHeight: 7,
 				BackIsHidden: no
