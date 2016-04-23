@@ -123,9 +123,9 @@ module.exports = ({imagesURL, renderedImagesURL, cardSets, counters})->
 			g: 0.0
 			b: 0.122524768
 		Locked: false
-		Grid: true
+		Grid: false
 		Snap: true
-		Autoraise: true
+		Autoraise: false
 		Sticky: true
 		CustomImage:
 			ImageURL: "#{imagesURL}/counters/#{counter.obverse ? counter.front}"
@@ -157,9 +157,9 @@ module.exports = ({imagesURL, renderedImagesURL, cardSets, counters})->
 			g: 1.0
 			b: 1.0
 		Locked: false
-		Grid: true
+		Grid: false
 		Snap: true
-		Autoraise: true
+		Autoraise: false
 		Sticky: true
 		CustomImage:
 			ImageURL: "#{imagesURL}/counters/#{counter.fname}"

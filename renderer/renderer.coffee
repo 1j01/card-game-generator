@@ -47,7 +47,7 @@ capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callb
 	datatype = if encoding is "base64" then "raw" else "buffer"
 	
 	show = if debug then yes else no
-	gui.Window.get().show() if show
+	# gui.Window.get().show() if show
 	
 	win = gui.Window.open url, {width, height, show, frame: show}
 	
