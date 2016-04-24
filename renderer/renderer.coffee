@@ -47,23 +47,48 @@ capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callb
 	datatype = if encoding is "base64" then "raw" else "buffer"
 	
 	show = if debug then yes else no
-	# gui.Window.get().show() if show
 	
-	win = gui.Window.open url, {width, height, show, frame: show}
-	
-	win.once "document-end", ->
+	gui.Window.open url, {width, height, show, frame: no, inject_js_end: code}, (win)->
+		# console.log "got win", win
+		# window.console.log "fghgfhgfh?"
+		# # win.on "document-end? loaded? loading? nothing works?", ->
+		# console.log "loaded"
+		# window.console.log "loaded??"
+		win.on "focus", ->
+			console.log "win focus"
+		win.on "document-end", ->
+			console.log "win document-end"
+		win.on "loaded", ->
+			console.log "win loaded"
+		win.on "loading", ->
+			console.log "win loading"
+		
+		# console.log win, win.appWindow
+		
+		# win.appWindow.on "focus", ->
+		# 	console.log "win.appWindow focus"
+		# win.appWindow.on "document-end", ->
+		# 	console.log "win.appWindow document-end"
+		# win.appWindow.on "loaded", ->
+		# 	console.log "win.appWindow loaded"
+		# win.appWindow.on "loading", ->
+		# 	console.log "win.appWindow loading"
+		
 		win.setMaximumSize width * 2, height * 2
 		win.width = width
 		win.height = height
+		# setTimeout ->
+		# win.eval null, code if code
+		console.log "setTimeout for 2000"
 		setTimeout ->
-			win.eval null, code if code
-			setTimeout ->
-				win.capturePage (buffer)->
-					win.close true unless debug
-					callback buffer
-				, {format, datatype}
-			, evalDelay
-		, delay
+			console.log "capturePage"
+			win.capturePage (buffer)->
+				console.log "page captured"
+				win.close true unless debug
+				callback buffer
+			, {format, datatype}
+		, 2000 #evalDelay
+		# , delay
 
 header = document.createElement("h1")
 document.body.appendChild(header)

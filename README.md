@@ -9,8 +9,8 @@ and automatically export them to Tabletop Simulator.
 This tool may not be a procedurally generated card game (PGCG),
 but if you were going to make one, this would be the tool to do it with.
 
-**Note:** This tool is a work in progress!
-Don't try to use it just yet.
+**Note:** This tool not in a usable state!
+[Open an issue][] if you want that to change.
 
 
 ## Installation
@@ -20,6 +20,8 @@ Don't try to use it just yet.
 
 
 ## Usage
+
+You'll need to look at some examples like [cards][] or [prosperity][].
 
 ### `new CardGameGenerator({cardSets, counters})`
 
@@ -48,11 +50,13 @@ Starts a renderer process with [nw.js][], and calls back when it exits.
 `cardWidth`/`Height` must be the exact width and height in pixels of each individual card.
 You can measure this with Inspect Element on the page.
 
-`scale` is the zoom level applied when rendering.
-`2` tends to be a good value.
+`scale` specifies the zoom level applied when rendering.
+Use this to increase the resolution of the rendered cards.
 You could also just make the card width/height huge but that's not recommended.
 
-`debug` makes the 
+`debug` makes the window(s) used for rendering show up
+so you can inspect the page(s) if something doesn't look right
+(with <kbd>F12</kbd> / <kbd>⌘+⌥+i</kbd>)
 
 `callback` takes an error as an argument
 for if the process crashes or fails to start,
@@ -100,9 +104,7 @@ and the name of the save as it appears in Tabletop Simulator's Chest.
 
 * Maybe allow starting card sets off rendering early
 
-* Maybe allow previewing the card sets from the renderer once rendered
-
-* Maybe add some spinners and checkmarks
+* Maybe allow previewing the card sets directly from the renderer once rendered
 
 * Support decks with separate backs for each card
 
@@ -122,3 +124,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [Node.js]: https://nodejs.org/en/
 [nw.js]: http://nwjs.io/
 [Tabletop Simulator]: http://store.steampowered.com/app/286160/
+[Open an issue]: https://github.com/1j01/card-game-generator/issues/new
+[prosperity]: 

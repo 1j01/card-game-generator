@@ -3,5 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "Just the nw-based rendering component of card-game-exporter",
-  "main": "renderer.html"
+  "main": "renderer.html",
+  "chromium-args": "--allow-file-access-from-files"
 }

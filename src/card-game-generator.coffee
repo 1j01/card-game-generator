@@ -17,6 +17,7 @@ class CardGameGenerator
 		@counters ?= {}
 	
 	renderCards: ({page, to, cardWidth, cardHeight, scale, debug}, callback)->
+		scale ?= 1
 		to = path.resolve(to)
 		page = path.resolve(page)
 		mkdirp to, (err)=>
