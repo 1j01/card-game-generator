@@ -2,7 +2,19 @@
   "name": "card-game-renderer",
   "version": "1.0.0",
   "private": true,
-  "description": "Just the nw-based rendering component of card-game-exporter",
+  "description": "Just the nw-based rendering component of card-game-generator",
   "main": "renderer.html",
-  "chromium-args": "--allow-file-access-from-files"
+  "node-remote": ["<all_urls>"],
+  "chromium-args": "--allow-file-access-from-files --allow-file-access",
+  "window": {
+    "id": "card-game-renderer-main"
+  },
+  "webview": {
+    "partitions": [
+      {
+        "name": "trusted",
+        "accessible_resources": [ "<all_urls>" ]
+      }
+    ]
+  }
 }

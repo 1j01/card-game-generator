@@ -1,36 +1,39 @@
 
-gui = require "nw.gui"
+document.title += " (using nw@#{process.versions.nw})"
+
 fs = require "fs"
 path = require "path"
 async = require "async"
 
-json = fs.readFileSync(gui.App.argv[0], "utf8")
+json = fs.readFileSync(nw.App.argv[0], "utf8")
 {page, to, cardWidth, cardHeight, scale, debug, cardSets} = JSON.parse(json)
 
-css = """
-	body {
-		zoom: #{scale};
-		text-align: left;
-		overflow: hidden;
-	}
-	h2 {
-		display: none;
-	}
-	.card {
-		margin: 0;
-	}
-"""
+# TODO: figure out card with and height
+
+# css = """
+# 	body {
+# 		zoom: #{scale};
+# 		text-align: left;
+# 		overflow: hidden;
+# 	}
+# 	h2 {
+# 		display: none;
+# 	}
+# 	.card {
+# 		margin: 0;
+# 	}
+# """
 
 options =
 	format: "png"
 	evalDelay: 14000
-	code: """
-		var css = #{JSON.stringify(css)};
-		var style = document.createElement('style');
-		style.type = 'text/css';
-		style.appendChild(document.createTextNode(css));
-		document.head.appendChild(style);
-	"""
+	# code: """
+	# 	var css = #{JSON.stringify(css)};
+	# 	var style = document.createElement('style');
+	# 	style.type = 'text/css';
+	# 	style.appendChild(document.createTextNode(css));
+	# 	document.head.appendChild(style);
+	# """
 	delay: 0
 	encoding: "binary"
 
@@ -42,13 +45,16 @@ merge = (a, b)->
 
 capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callback)->
 	
-	height += 38 if process.platform is "linux"
+	# height += 38 if process.platform is "linux"
 	
 	datatype = if encoding is "base64" then "raw" else "buffer"
 	
-	show = if debug then yes else no
+	# TODO: only show when debugging again
+	# https://github.com/nwjs/nw.js/issues/4814
+	show = yes #if debug then yes else no
 	
-	gui.Window.open url, {width, height, show, frame: no, inject_js_end: code}, (win)->
+	# nw.Window.open url, {width, height, show, frame: no, inject_js_end: code}, (win)->
+	nw.Window.open url, {width, height, show, frame: no}, (win)->
 		# console.log "got win", win
 		# window.console.log "fghgfhgfh?"
 		# # win.on "document-end? loaded? loading? nothing works?", ->
@@ -108,9 +114,10 @@ export_set = (set_name, callback)->
 	
 	capture_options = merge options,
 		width: cardWidth * n_h * scale
-		height: cardHeight * n_v * scale + 39 # magic number 39, maybe related to the magic 38 for Linux above?
+		height: cardHeight * n_v * scale #+ 39 # magic number 39, maybe related to the magic 38 for Linux above?
 	
-	capture "file://#{page}##{set_name}", capture_options, (buffer)->
+	# capture "file://#{page}##{set_name}", capture_options, (buffer)->
+	capture "chrome-extension://#{chrome.runtime.id}/capture.html#file:///#{page}##{set_name}", capture_options, (buffer)->
 		console.log "Got some image data for #{set_name}"
 		set_el.classList.remove("rendering")
 		set_el.classList.add("saving")
@@ -145,13 +152,18 @@ for set_name in set_names
 (if parallel then async.each else async.eachSeries) set_names, export_set,
 	(err)->
 		if err
+			console.log "failed"
 			# document.body.style.background = "red"
 			# document.body.style.color = "white"
 			document.body.style.color = "red"
 			header.textContent = "Rendering cards failed"
 			document.body.innerHTML += err
 			throw err
-		console.log "done"
-		setTimeout ->
-			gui.Window.get().close true
-		, 300
+		else
+			console.log "done"
+			setTimeout ->
+				if debug
+					console.log "staying open because debug mode is on"
+				else
+					nw.Window.get().close true
+			, 300
