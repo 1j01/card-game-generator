@@ -22,7 +22,7 @@ but if you were going to make one, this would be the tool to do it with.
 
 ## Usage
 
-You'll need to look at some examples like [cards][] or [prosperity][].
+You'll want to look at some examples like [some playing cards][], [Systemocracy][], or [Prosperity][].
 
 ### `new CardGameGenerator({cardSets, counters})`
 
@@ -75,12 +75,11 @@ The rendering is based on a timer, so if the page doesn't finish rendering in th
 `saveName` determines the filename of the savegame
 and the name of the save as it appears in Tabletop Simulator's Chest.
 
-`imagesURL` specifies where the images are hosted, e.g.
+`imagesURL` specifies where the token/tile images are hosted, e.g.
 `https://raw.githubusercontent.com/you/game-repo/gh-pages/images`
 
-`renderedImagesURL` specifies where the rendered images are hosted, e.g.
-`https://raw.githubusercontent.com/you/game-repo/gh-pages/images/export`
-
+`renderedImagesURL` specifies where the rendered card images are hosted, e.g.
+`https://raw.githubusercontent.com/you/game-repo/gh-pages/export/images`
 
 
 ## TODO
@@ -128,4 +127,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [nw.js]: http://nwjs.io/
 [Tabletop Simulator]: http://store.steampowered.com/app/286160/
 [Open an issue]: https://github.com/1j01/card-game-generator/issues/new
-[prosperity]: https://github.com/1j01/prosperity
+[some playing cards]: https://github.com/1j01/techy-playing-cards
+[Systemocracy]: https://github.com/1j01/systemocracy
+[Prosperity]: https://github.com/1j01/prosperity
