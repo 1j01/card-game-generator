@@ -97,6 +97,12 @@ and the name of the save as it appears in Tabletop Simulator's Chest.
 
 * Detect card size automatically! You shouldn't have to pass in the dimensions.
 
+* Reliably render card sets!
+Currently it's based on a timer.
+Maybe it could be based on `requestAnimationFrame` and `postMessage`.
+
+* Export floating text labels for each deck in the TS save
+
 * Possibly populate the cache rather than just clearing it
   (Note that while this could make it so you could see changes in TS immediately (before commiting and pushing), it could make it unclear whether the image URLs are correct)
 
