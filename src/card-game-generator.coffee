@@ -7,8 +7,7 @@ path = require "path"
 nw = (require "nw").findpath()
 create_save = require "./create-save"
 
-# TODO: cross-platform!
-ts_folder = "#{process.env.USERPROFILE}/Documents/My Games/Tabletop Simulator"
+ts_folder = process.env.TABLETOP_SIMULATOR_FOLDER or "#{process.env.USERPROFILE}/Documents/My Games/Tabletop Simulator"
 
 module.exports =
 class CardGameGenerator
@@ -54,7 +53,9 @@ class CardGameGenerator
 	exportSaveToTabletopSimulatorChest: ->
 		unless @ts_save_json
 			throw new Error "You must call exportTabletopSimulatorSave first"
-		
+		if not fs.existsSync(ts_folder)
+			throw new Error "The Tabletop Simulator folder doesn't exist at '#{ts_folder}' - specify it with an environment variable TABLETOP_SIMULATOR_FOLDER (if you have Tabletop Simulator)"
+
 		chest_folder = "#{ts_folder}/Saves/Chest"
 		fs.writeFileSync("#{chest_folder}/#{@ts_save_filename}", @ts_save_json, "utf8")
 		

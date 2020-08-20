@@ -24,6 +24,9 @@ but if you were going to make one, this would be the tool to do it with.
 
 You'll want to look at some examples like [some playing cards][], [Systemocracy][], or [Prosperity][].
 
+Set an environment variable `TABLETOP_SIMULATOR_FOLDER` to the `Tabletop Simulator` folder that should contain folders `Saves` and `Mods`.
+If the folder doesn't have these folders, the code may need to be updated for a different operating system or a new version of Tabletop Simulator.
+
 ### `new CardGameGenerator({cardSets, counters})`
 
 `cardSets` can be an object keyed by set/deck name
@@ -88,8 +91,6 @@ and the name of the save as it appears in Tabletop Simulator's Chest.
   (just have `tokens` and `tiles`)
 
 * Compile CoffeeScript / just use JS
-
-* Make cross-platform (should just need to know what the Tabletop Simulator directory is on platforms other than Windows)
 
 * Handle a single array of cards with a default set name (like "Cards")
 
