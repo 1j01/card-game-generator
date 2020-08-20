@@ -26,13 +26,18 @@ class CardGameGenerator
 				return callback err if err
 				args_json = JSON.stringify({@cardSets, page, to, cardWidth, cardHeight, scale, debug})
 				fs.writeFileSync(args_json_file, args_json, "utf8")
+				# console.log("spawn '#{nw}' with arguments:", [path.join(__dirname, "../renderer"), args_json_file])
+				stderr = ""
+				# stdout = ""
 				nw_process = spawn(nw, [path.join(__dirname, "../renderer"), args_json_file])
+				nw_process.stderr.on "data", (data)-> stderr += data
+				# nw_process.stdout.on "data", (data)-> stderr += data
 				nw_process.on "error", callback
 				nw_process.on "exit", (code)->
 					if code is 0
 						callback()
 					else
-						callback(new Error("nw renderer process exited with code #{code}"))
+						callback(new Error("nw renderer process exited with code #{code} - stderr follows:\n#{stderr}"))
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)
