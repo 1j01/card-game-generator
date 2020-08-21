@@ -1,7 +1,0 @@
-{
-  "name": "card-game-renderer",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Just the electron-based rendering component of card-game-generator",
-  "main": "main.js"
-}
