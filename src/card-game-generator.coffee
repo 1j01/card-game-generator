@@ -64,7 +64,10 @@ class CardGameGenerator
 		unless @ts_save_json
 			throw new Error "You must call exportTabletopSimulatorSave first"
 		if not fs.existsSync(ts_folder)
-			throw new Error "The Tabletop Simulator folder doesn't exist at '#{ts_folder}' - specify it with an environment variable TABLETOP_SIMULATOR_FOLDER (if you have Tabletop Simulator)"
+			if not process.env.USERPROFILE and not process.env.TABLETOP_SIMULATOR_FOLDER
+				throw new Error "If you have Tabletop Simulator, please specify the Tabletop Simulator folder with an environment variable TABLETOP_SIMULATOR_FOLDER"
+			else
+				throw new Error "The Tabletop Simulator folder doesn't exist at '#{ts_folder}' - specify it with an environment variable TABLETOP_SIMULATOR_FOLDER (if you have Tabletop Simulator)"
 
 		chest_folder = "#{ts_folder}/Saves/Chest"
 		fs.writeFileSync("#{chest_folder}/#{@ts_save_filename}", @ts_save_json, "utf8")
