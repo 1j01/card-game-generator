@@ -70,10 +70,26 @@ export_set = (set_name, callback)->
 		frame: no
 		width: capture_options.width
 		height: capture_options.height
-		# webPreferences:
-		# 	preload: "preload.js"
+		webPreferences: {
+			preload: require("path").join(__dirname, "preload.js")
+			sandbox: true,
+			enableBlinkFeatures: '',
+			disableBlinkFeatures:'Auxclick',
+			nativeWindowOpen: true,
+			allowRunningInsecureContent: false,
+			experimentalCanvasFeatures: false,
+			experimentalFeatures: false,
+			nodeIntegration: false,
+			nodeIntegrationInWorker: false,
+			webSecurity: true,
+			webviewTag: false,
+			navigateOnDragDrop: false,
+		}
 	})
 	
+	win.webContents.on 'preload-error', (event, preloadPath, error)->
+		console.error("Error in preload script", preloadPath, error)
+
 	# win.webContents.on 'dom-ready', ->
 	# 	console.log "dom-ready"
 	# win.webContents.on 'did-finish-load', ->
@@ -137,7 +153,7 @@ app.on 'ready', ->
 				# 	else
 				# 		close window
 				# , 300
-				app.exit(0)
+				app.exit(0) unless debug
 				# app.quit()
 
 app.on 'window-all-closed', ->
