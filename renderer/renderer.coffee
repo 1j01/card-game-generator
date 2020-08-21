@@ -56,7 +56,6 @@ capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callb
 	# https://github.com/nwjs/nw.js/issues/4814
 	show = yes #if debug then yes else no
 	
-	# nw.Window.open url, {width, height, show, frame: no, inject_js_end: code}, (win)->
 	nw.Window.open url, {width, height, show, frame: no}, (win)->
 		# console.log "got win", win
 		# window.console.log "fghgfhgfh?"
@@ -119,17 +118,21 @@ export_set = (set_name, callback)->
 		width: cardWidth * n_h * scale
 		height: cardHeight * n_v * scale #+ 39 # magic number 39, maybe related to the magic 38 for Linux above?
 	
-	# capture "file://#{page}##{set_name}", capture_options, (buffer)->
-	capture "chrome-extension://#{chrome.runtime.id}/capture.html#file:///#{page}##{set_name}", capture_options, (buffer)->
-		console.log "Got some image data for #{set_name}"
-		# set_el.classList.remove("rendering")
-		# set_el.classList.add("saving")
-		file_name = path.join to, "#{set_name}.png"
-		fs.writeFile file_name, buffer, (err)->
-			return callback err if err
-			console.log "Wrote #{file_name}"
-			# set_el.classList.add("done")
-			callback null
+	win = new BrowserWindow({show: debug})
+	
+	win.webContents.on 'did-stop-loading', ->
+		win.capturePage (image)->
+			console.log "Got image data for #{set_name}"
+			# set_el.classList.remove("rendering")
+			# set_el.classList.add("saving")
+			file_name = path.join to, "#{set_name}.png"
+			fs.writeFile file_name, image.toPNG(), (err)->
+				return callback err if err
+				console.log "Wrote #{file_name}"
+				# set_el.classList.add("done")
+				callback null
+	win.loadURL("file:///#{page}##{set_name}")
+
 	
 	# set_el.classList.add("rendering")
 
@@ -152,19 +155,21 @@ parallel = process.env.PARALLEL_EXPORT in ["on", "ON", "true", "TRUE", "yes", "Y
 # 	set_container.appendChild(set_el)
 # 	set_elements[set_name] = set_el
 
-(if parallel then async.each else async.eachSeries) set_names, export_set,
-	(err)->
-		if err
-			console.log "failed"
-			# document.body.style.color = "red"
-			# header.textContent = "Rendering cards failed"
-			# document.body.innerHTML += err
-			throw err
-		else
-			console.log "done"
-			# setTimeout ->
-			# 	if debug
-			# 		console.log "staying open because debug mode is on"
-			# 	else
-			# 		close window
-			# , 300
+app.on 'ready', ->
+	(if parallel then async.each else async.eachSeries) set_names, export_set,
+		(err)->
+			if err
+				console.log "failed"
+				# document.body.style.color = "red"
+				# header.textContent = "Rendering cards failed"
+				# document.body.innerHTML += err
+				throw err
+			else
+				console.log "done"
+				# setTimeout ->
+				# 	if debug
+				# 		console.log "staying open because debug mode is on"
+				# 	else
+				# 		close window
+				# , 300
+				app.quit()
