@@ -43,7 +43,7 @@ or
 
 ### `renderCards({page, to, cardWidth, cardHeight, scale, debug}, callback)`
 
-Starts a renderer process with [nw.js][], and calls back when it exits.
+Starts a renderer process with [Electron][], and calls back when it exits.
 
 `page` should be a path to an `html` file which displays the cards.
 
@@ -131,7 +131,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 [Node.js]: https://nodejs.org/en/
-[nw.js]: http://nwjs.io/
+[Electron]: https://www.electronjs.org/
 [Tabletop Simulator]: http://store.steampowered.com/app/286160/
 [Open an issue]: https://github.com/1j01/card-game-generator/issues/new
 [some playing cards]: https://github.com/1j01/techy-playing-cards

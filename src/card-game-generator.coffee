@@ -4,7 +4,7 @@ tmp = require "tmp"
 fs = require "fs"
 path = require "path"
 {spawn} = require "child_process"
-nw = (require "nw").findpath()
+electron = require "electron"
 create_save = require "./create-save"
 
 ts_folder = process.env.TABLETOP_SIMULATOR_FOLDER or "#{process.env.USERPROFILE}/Documents/My Games/Tabletop Simulator"
@@ -25,18 +25,28 @@ class CardGameGenerator
 				return callback err if err
 				args_json = JSON.stringify({@cardSets, page, to, cardWidth, cardHeight, scale, debug})
 				fs.writeFileSync(args_json_file, args_json, "utf8")
-				# console.log("spawn '#{nw}' with arguments:", [path.join(__dirname, "../renderer"), args_json_file])
+				# console.log("spawn '#{electron}' with arguments:", [path.join(__dirname, "../renderer"), args_json_file])
 				stderr = ""
 				# stdout = ""
-				nw_process = spawn(nw, [path.join(__dirname, "../renderer"), args_json_file])
-				nw_process.stderr.on "data", (data)-> stderr += data
-				# nw_process.stdout.on "data", (data)-> stderr += data
-				nw_process.on "error", callback
-				nw_process.on "exit", (code)->
-					if code is 0
+				electron_process = spawn(electron, [path.join(__dirname, "../renderer"), args_json_file])
+				electron_process.stderr.on "data", (data)->
+					stderr += data
+					if stderr.indexOf("A JavaScript error occurred in the main process") > -1
+						setTimeout -> # allow plenty of time for error message to finish coming in
+							# electron_process.removeListener "error", callback
+							# callback(
+							electron_process.kill()
+						, 500
+				# electron_process.stdout.on "data", (data)-> stderr += data
+				if debug
+					electron_process.stdout.pipe(process.stdout)
+					electron_process.stderr.pipe(process.stderr)
+				electron_process.on "error", callback
+				electron_process.on "exit", (code)->
+					if code is 0 and stderr.indexOf("A JavaScript error occurred in the main process") is -1
 						callback()
 					else
-						callback(new Error("nw renderer process exited with code #{code} - stderr follows:\n#{stderr}"))
+						callback(new Error("electron card renderer process exited with code #{code} - stderr follows:\n#{stderr}"))
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)
