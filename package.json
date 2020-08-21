@@ -33,8 +33,10 @@
   "dependencies": {
     "async": "^2.1.4",
     "coffeescript": "^2.5.1",
+    "connect": "^3.7.0",
     "mkdirp": "^0.5.1",
     "puppeteer": "^5.2.1",
+    "serve-static": "^1.14.1",
     "tmp": "0.0.31"
   }
 }

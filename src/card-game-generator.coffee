@@ -6,6 +6,8 @@ fs = require "fs"
 path = require "path"
 {spawn} = require "child_process"
 puppeteer = require "puppeteer"
+connect = require "connect"
+serve_static = require "serve-static"
 create_save = require "./create-save"
 
 ts_folder = process.env.TABLETOP_SIMULATOR_FOLDER or "#{process.env.USERPROFILE}/Documents/My Games/Tabletop Simulator"
@@ -52,32 +54,45 @@ class CardGameGenerator
 		set_names = ["Back"].concat(Object.keys(@cardSets))
 		parallel = process.env.PARALLEL_EXPORT in ["on", "ON", "true", "TRUE", "yes", "YES", "1"]
 
-		(do ->
-			browser = await puppeteer.launch({devtools: true})
-			pup_page = await browser.newPage()
-			await pup_page.goto("file://#{page}")
-			await page.evaluate ->
-				debugger
-			await pup_page.screenshot({path: path.join(to, 'example.png')})
+		port = 8191
+		connect()
+			.use(serve_static(path.dirname(page)))
+			.listen(port, ->
+				console.log "Server running on #{port}..."
+				(do ->
+					browser = await puppeteer.launch({devtools: true})
+					pup_page = await browser.newPage()
+					await pup_page.goto("http://127.0.0.1:#{port}")
+					# await pup_page.setViewport({viewport: {width, height}})
+					# TODO: is deviceScaleFactor better than CSS zoom?
+					await pup_page.evaluate (css)->
+						style = document.createElement("style")
+						style.type = "text/css"
+						style.appendChild(document.createTextNode(css))
+						document.head.appendChild(style)
+					, css
 
-			# (if parallel then async.each else async.eachSeries) set_names,
-			# 	(set_name, callback)=>
-			# 		n_h = if set_name is "Back" then 1 else 10
-			# 		n_v = if set_name is "Back" then 1 else 7
-			# 		width = cardWidth * n_h * scale
-			# 		height = cardHeight * n_v * scale
-			# 		mkdirp to, (err)=>
-			# 			return callback err if err
-			# 				electroshot_args = [page, "#{width}x#{height}", "--out", to, "--filename", "#{set_name}{format}"]
-			# 				console.log("spawn electroshot", electroshot_args)
-			# 	(error)->
-			# 		callback(error)
+					await pup_page.screenshot({path: path.join(to, 'example.png')})
 
-			await browser.close()
-		).then(
-			(result)-> callback(null, result)
-			(error)-> callback(error)
-		)
+					# (if parallel then async.each else async.eachSeries) set_names,
+					# 	(set_name, callback)=>
+					# 		n_h = if set_name is "Back" then 1 else 10
+					# 		n_v = if set_name is "Back" then 1 else 7
+					# 		width = cardWidth * n_h * scale
+					# 		height = cardHeight * n_v * scale
+					# 		mkdirp to, (err)=>
+					# 			return callback err if err
+					# 				electroshot_args = [page, "#{width}x#{height}", "--out", to, "--filename", "#{set_name}{format}"]
+					# 				console.log("spawn electroshot", electroshot_args)
+					# 	(error)->
+					# 		callback(error)
+
+					await browser.close()
+				).then(
+					(result)-> callback(null, result)
+					(error)-> callback(error)
+				)
+			)
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)

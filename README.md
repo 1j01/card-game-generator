@@ -46,6 +46,7 @@ or
 Starts a renderer process with [Electron][], and calls back when it exits.
 
 `page` should be a path pointing to an `html` file which displays the cards.
+It will be served over HTTP to avoid issues with with the `file:` protocol.
 
 `to` specifies the output directory, e.g.
 `export/images` or `images/export`
