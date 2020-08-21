@@ -33,8 +33,8 @@
   "dependencies": {
     "async": "^2.1.4",
     "coffeescript": "^2.5.1",
-    "electron": "^9.2.1",
     "mkdirp": "^0.5.1",
+    "puppeteer": "^5.2.1",
     "tmp": "0.0.31"
   }
 }
