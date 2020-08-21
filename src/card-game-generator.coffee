@@ -42,11 +42,11 @@ class CardGameGenerator
 					electron_process.stdout.pipe(process.stdout)
 					electron_process.stderr.pipe(process.stderr)
 				electron_process.on "error", callback
-				electron_process.on "exit", (code)->
+				electron_process.on "exit", (code, signal)->
 					if code is 0 and stderr.indexOf("A JavaScript error occurred in the main process") is -1
 						callback()
 					else
-						callback(new Error("electron card renderer process exited with code #{code} - stderr follows:\n#{stderr}"))
+						callback(new Error("electron card renderer process exited #{if signal? then "because of signal #{signal}" else "with code #{code}"} - stderr follows:\n#{stderr}"))
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)
