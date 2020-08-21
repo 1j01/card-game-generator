@@ -6,7 +6,6 @@ path = require "path"
 async = require "async"
 {app, BrowserWindow} = require "electron"
 
-console.log(process.argv, app, BrowserWindow)
 # TODO: does argv work in a cross-platform way?
 json = fs.readFileSync(process.argv[2], "utf8")
 {page, to, cardWidth, cardHeight, scale, debug, cardSets} = JSON.parse(json)
@@ -46,58 +45,6 @@ merge = (a, b)->
 	c[k] = v for k, v of b
 	c
 
-capture = (url, {width, height, format, evalDelay, code, delay, encoding}, callback)->
-	
-	# height += 38 if process.platform is "linux"
-	
-	datatype = if encoding is "base64" then "raw" else "buffer"
-	
-	# TODO: only show when debugging again
-	# https://github.com/nwjs/nw.js/issues/4814
-	show = yes #if debug then yes else no
-	
-	nw.Window.open url, {width, height, show, frame: no}, (win)->
-		# console.log "got win", win
-		# window.console.log "fghgfhgfh?"
-		# # win.on "document-end? loaded? loading? nothing works?", ->
-		# console.log "loaded"
-		# window.console.log "loaded??"
-		win.on "focus", ->
-			console.log "win focus"
-		win.on "document-end", ->
-			console.log "win document-end"
-		win.on "loaded", ->
-			console.log "win loaded"
-		win.on "loading", ->
-			console.log "win loading"
-		
-		# console.log win, win.appWindow
-		
-		# win.appWindow.on "focus", ->
-		# 	console.log "win.appWindow focus"
-		# win.appWindow.on "document-end", ->
-		# 	console.log "win.appWindow document-end"
-		# win.appWindow.on "loaded", ->
-		# 	console.log "win.appWindow loaded"
-		# win.appWindow.on "loading", ->
-		# 	console.log "win.appWindow loading"
-		
-		win.setMaximumSize width * 2, height * 2
-		win.width = width
-		win.height = height
-		# setTimeout ->
-		# win.eval null, code if code
-		console.log "setTimeout for 2000"
-		setTimeout ->
-			console.log "capturePage"
-			win.capturePage (buffer)->
-				console.log "page captured"
-				win.close true unless debug
-				callback buffer
-			, {format, datatype}
-		, 2000 #evalDelay
-		# , delay
-
 # header = document.createElement("h1")
 # document.body.appendChild(header)
 # header.textContent = "Rendering cards..."
@@ -118,21 +65,39 @@ export_set = (set_name, callback)->
 		width: cardWidth * n_h * scale
 		height: cardHeight * n_v * scale #+ 39 # magic number 39, maybe related to the magic 38 for Linux above?
 	
-	win = new BrowserWindow({show: debug})
+	win = new BrowserWindow({
+		show: debug
+		frame: no
+		width: capture_options.width
+		height: capture_options.height
+		# webPreferences:
+		# 	preload: "preload.js"
+	})
 	
+	# win.webContents.on 'dom-ready', ->
+	# 	console.log "dom-ready"
+	# win.webContents.on 'did-finish-load', ->
+	# 	console.log "did-finish-load"
 	win.webContents.on 'did-stop-loading', ->
-		win.capturePage (image)->
-			console.log "Got image data for #{set_name}"
-			# set_el.classList.remove("rendering")
-			# set_el.classList.add("saving")
-			file_name = path.join to, "#{set_name}.png"
-			fs.writeFile file_name, image.toPNG(), (err)->
-				return callback err if err
-				console.log "Wrote #{file_name}"
-				# set_el.classList.add("done")
-				callback null
+		# console.log "did-stop-loading"
+		console.log "setTimeout for 2000"
+		setTimeout ->
+			win.capturePage().then (image)->
+				win.close() unless debug
+				console.log "Got image data for #{set_name}"
+				# set_el.classList.remove("rendering")
+				# set_el.classList.add("saving")
+				file_name = path.join to, "#{set_name}.png"
+				console.log "get as PNG"
+				buffer = image.toPNG()
+				console.log "now write to file..."
+				fs.writeFile file_name, buffer, (err)->
+					return callback err if err
+					console.log "Wrote #{file_name}"
+					# set_el.classList.add("done")
+					callback null
+		, 2000
 	win.loadURL("file:///#{page}##{set_name}")
-
 	
 	# set_el.classList.add("rendering")
 
@@ -172,4 +137,9 @@ app.on 'ready', ->
 				# 	else
 				# 		close window
 				# , 300
-				app.quit()
+				app.exit(0)
+				# app.quit()
+
+app.on 'window-all-closed', ->
+	# TODO: exit with 0 if everything finished and windows were just left open for debug mode
+	app.exit(1)
