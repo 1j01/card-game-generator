@@ -1,10 +1,7 @@
 
 mkdirp = require "mkdirp"
-async = require "async"
-tmp = require "tmp"
 fs = require "fs"
 path = require "path"
-{spawn} = require "child_process"
 puppeteer = require "puppeteer"
 connect = require "connect"
 serve_static = require "serve-static"
@@ -38,6 +35,13 @@ get_css = ({scale})-> """
 	}
 """
 
+runTasksInSerial = (tasks)->
+	for task in tasks
+		await task()
+
+runTasksInParallel = (tasks)->
+	Promise.all(task() for task in tasks)
+
 module.exports =
 class CardGameGenerator
 	constructor: ({@cardSets, @counters})->
@@ -54,6 +58,7 @@ class CardGameGenerator
 		set_names = ["Back"].concat(Object.keys(@cardSets))
 		parallel = process.env.PARALLEL_EXPORT in ["on", "ON", "true", "TRUE", "yes", "YES", "1"]
 
+		# TODO: use different port if not available, close server when done
 		port = 8191
 		connect()
 			.use(serve_static(path.dirname(page)))
@@ -61,31 +66,29 @@ class CardGameGenerator
 				console.log "Server running on #{port}..."
 				(do ->
 					browser = await puppeteer.launch({devtools: true})
-					pup_page = await browser.newPage()
-					await pup_page.goto("http://127.0.0.1:#{port}")
-					# await pup_page.setViewport({viewport: {width, height}})
-					# TODO: is deviceScaleFactor better than CSS zoom?
-					await pup_page.evaluate (css)->
-						style = document.createElement("style")
-						style.type = "text/css"
-						style.appendChild(document.createTextNode(css))
-						document.head.appendChild(style)
-					, css
 
-					await pup_page.screenshot({path: path.join(to, 'example.png')})
-
-					# (if parallel then async.each else async.eachSeries) set_names,
-					# 	(set_name, callback)=>
-					# 		n_h = if set_name is "Back" then 1 else 10
-					# 		n_v = if set_name is "Back" then 1 else 7
-					# 		width = cardWidth * n_h * scale
-					# 		height = cardHeight * n_v * scale
-					# 		mkdirp to, (err)=>
-					# 			return callback err if err
-					# 				electroshot_args = [page, "#{width}x#{height}", "--out", to, "--filename", "#{set_name}{format}"]
-					# 				console.log("spawn electroshot", electroshot_args)
-					# 	(error)->
-					# 		callback(error)
+					tasks = set_names.map((set_name)->
+						->
+							n_h = if set_name is "Back" then 1 else 10
+							n_v = if set_name is "Back" then 1 else 7
+							width = cardWidth * n_h * scale
+							height = cardHeight * n_v * scale
+							await mkdirp(to)
+							pup_page = await browser.newPage()
+							await pup_page.goto("http://127.0.0.1:#{port}##{set_name}", waitUntil: 'networkidle0')
+							await pup_page.setViewport({width, height})
+							# TODO: is deviceScaleFactor better than CSS zoom?
+							await pup_page.evaluate (css)->
+								style = document.createElement("style")
+								style.type = "text/css"
+								style.appendChild(document.createTextNode(css))
+								document.head.appendChild(style)
+							, css
+							await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
+					)
+					# TODO: think about early-failure for task running
+					runTasks = if parallel then runTasksInParallel else runTasksInSerial
+					await runTasks(tasks)
 
 					await browser.close()
 				).then(
