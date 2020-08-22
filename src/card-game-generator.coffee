@@ -5,6 +5,7 @@ path = require "path"
 puppeteer = require "puppeteer"
 connect = require "connect"
 serve_static = require "serve-static"
+portfinder = require "portfinder"
 create_save = require "./create-save"
 
 ts_folder = process.env.TABLETOP_SIMULATOR_FOLDER or "#{process.env.USERPROFILE}/Documents/My Games/Tabletop Simulator"
@@ -42,6 +43,17 @@ runTasksInSerial = (tasks)->
 runTasksInParallel = (tasks)->
 	Promise.all(task() for task in tasks)
 
+startWebServer = (folder, port)->
+	new Promise (resolve, reject)->
+		app = connect()
+			.use(serve_static(folder))
+			.listen(port, ->
+				# console.log "Server running on #{port}..."
+				stopWebServer = ->
+					app.close()
+				resolve(stopWebServer)
+			)
+
 module.exports =
 class CardGameGenerator
 	constructor: ({@cardSets, @counters})->
@@ -58,47 +70,44 @@ class CardGameGenerator
 		set_names = ["Back"].concat(Object.keys(@cardSets))
 		parallel = process.env.PARALLEL_EXPORT in ["on", "ON", "true", "TRUE", "yes", "YES", "1"]
 
-		# TODO: use different port if not available, close server when done
-		port = 8191
-		connect()
-			.use(serve_static(path.dirname(page)))
-			.listen(port, ->
-				console.log "Server running on #{port}..."
-				(do ->
-					browser = await puppeteer.launch({devtools: debug})
+		(do ->
+			port = await portfinder.getPortPromise()
+			stopWebServer = await startWebServer(path.dirname(page), port)
+		
+			browser = await puppeteer.launch({devtools: debug})
 
-					render_card_set = (set_name)->
-						n_h = if set_name is "Back" then 1 else 10
-						n_v = if set_name is "Back" then 1 else 7
-						width = cardWidth * n_h * scale
-						height = cardHeight * n_v * scale
-						await mkdirp(to)
-						pup_page = await browser.newPage()
-						await pup_page.goto("http://127.0.0.1:#{port}##{set_name}", waitUntil: 'networkidle0')
-						await pup_page.setViewport({width, height})
-						# TODO: is deviceScaleFactor better than CSS zoom?
-						await pup_page.evaluate (css)->
-							style = document.createElement("style")
-							style.type = "text/css"
-							style.appendChild(document.createTextNode(css))
-							document.head.appendChild(style)
-						, css
-						await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
-						await pup_page.close()
+			render_card_set = (set_name)->
+				n_h = if set_name is "Back" then 1 else 10
+				n_v = if set_name is "Back" then 1 else 7
+				width = cardWidth * n_h * scale
+				height = cardHeight * n_v * scale
+				await mkdirp(to)
+				pup_page = await browser.newPage()
+				await pup_page.goto("http://127.0.0.1:#{port}##{set_name}", waitUntil: 'networkidle0')
+				await pup_page.setViewport({width, height})
+				# TODO: is deviceScaleFactor better than CSS zoom?
+				await pup_page.evaluate (css)->
+					style = document.createElement("style")
+					style.type = "text/css"
+					style.appendChild(document.createTextNode(css))
+					document.head.appendChild(style)
+				, css
+				await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
+				await pup_page.close()
 
-					tasks = set_names.map((set_name)->
-						-> render_card_set(set_name)
-					)
-					# TODO: think about early-failure for task running
-					runTasks = if parallel then runTasksInParallel else runTasksInSerial
-					await runTasks(tasks)
-
-					await browser.close()
-				).then(
-					(result)-> callback(null, result)
-					(error)-> callback(error)
-				)
+			tasks = set_names.map((set_name)->
+				-> render_card_set(set_name)
 			)
+			# TODO: think about early-failure for task running
+			runTasks = if parallel then runTasksInParallel else runTasksInSerial
+			await runTasks(tasks)
+
+			await browser.close()
+			stopWebServer()
+		).then(
+			(result)-> callback(null, result)
+			(error)-> callback(error)
+		)
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)
