@@ -1,6 +1,6 @@
 {
   "name": "card-game-generator",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "A card game development toolkit",
   "repository": {
     "type": "git",
@@ -30,7 +30,9 @@
     "game-engine"
   ],
   "main": "src/card-game-generator.coffee",
-  "files": ["src/"],
+  "files": [
+    "src/"
+  ],
   "dependencies": {
     "coffeescript": "^2.5.1",
     "connect": "^3.7.0",
