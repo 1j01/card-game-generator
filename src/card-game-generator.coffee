@@ -67,25 +67,27 @@ class CardGameGenerator
 				(do ->
 					browser = await puppeteer.launch({devtools: true})
 
+					render_card_set = (set_name)->
+						n_h = if set_name is "Back" then 1 else 10
+						n_v = if set_name is "Back" then 1 else 7
+						width = cardWidth * n_h * scale
+						height = cardHeight * n_v * scale
+						await mkdirp(to)
+						pup_page = await browser.newPage()
+						await pup_page.goto("http://127.0.0.1:#{port}##{set_name}", waitUntil: 'networkidle0')
+						await pup_page.setViewport({width, height})
+						# TODO: is deviceScaleFactor better than CSS zoom?
+						await pup_page.evaluate (css)->
+							style = document.createElement("style")
+							style.type = "text/css"
+							style.appendChild(document.createTextNode(css))
+							document.head.appendChild(style)
+						, css
+						await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
+						await pup_page.close()
+
 					tasks = set_names.map((set_name)->
-						->
-							n_h = if set_name is "Back" then 1 else 10
-							n_v = if set_name is "Back" then 1 else 7
-							width = cardWidth * n_h * scale
-							height = cardHeight * n_v * scale
-							await mkdirp(to)
-							pup_page = await browser.newPage()
-							await pup_page.goto("http://127.0.0.1:#{port}##{set_name}", waitUntil: 'networkidle0')
-							await pup_page.setViewport({width, height})
-							# TODO: is deviceScaleFactor better than CSS zoom?
-							await pup_page.evaluate (css)->
-								style = document.createElement("style")
-								style.type = "text/css"
-								style.appendChild(document.createTextNode(css))
-								document.head.appendChild(style)
-							, css
-							await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
-							await pup_page.close()
+						-> render_card_set(set_name)
 					)
 					# TODO: think about early-failure for task running
 					runTasks = if parallel then runTasksInParallel else runTasksInSerial
