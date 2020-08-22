@@ -30,6 +30,7 @@
     "game-engine"
   ],
   "main": "src/card-game-generator.coffee",
+  "files": ["src/"],
   "dependencies": {
     "coffeescript": "^2.5.1",
     "connect": "^3.7.0",
