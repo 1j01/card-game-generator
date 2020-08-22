@@ -1,28 +1,20 @@
 
 # Card Game Generator
 
-A tool for developing card games for and along with [Tabletop Simulator][].
+A tool for developing card games for or with [Tabletop Simulator][].
 
 Render custom decks of cards with whatever templating/rendering solution you prefer
 (you can use HTML+CSS, SVG, even WebGL!),
 and automatically export them to Tabletop Simulator.
-
-This tool may not be a procedurally generated card game (PGCG),
-but if you were going to make one, this would be the tool to do it with.
-
-**Note:** This tool may not be in a usable state!
-[Open an issue][] if you want that to change.
-
 
 ## Installation
 
 * Have [Node.js][]
 * `npm install card-game-generator --save-dev`
 
-
 ## Usage
 
-You'll want to look at some examples like [some playing cards][], [Systemocracy][], or [Prosperity][].
+You'll want to look at some examples like [some standard-ish playing cards][techy-playing-cards], [Systemocracy][], or [Prosperity][].
 
 Set an environment variable `TABLETOP_SIMULATOR_FOLDER` to the `Tabletop Simulator` folder that should contain folders `Saves` and `Mods`.
 If the folder doesn't have these folders, the code may need to be updated for a different operating system or a new version of Tabletop Simulator.
@@ -43,7 +35,7 @@ or
 
 ### `renderCards({page, to, cardWidth, cardHeight, scale, debug}, callback)`
 
-Starts a renderer process with [Electron][], and calls back when it exits.
+Starts a renderer process with [Puppeteer][], and calls back when it exits.
 
 `page` should be a path pointing to an `html` file which displays the cards.
 It will be served over HTTP to avoid issues with with the `file:` protocol.
@@ -56,19 +48,14 @@ It will be served over HTTP to avoid issues with with the `file:` protocol.
 You can measure this with Inspect Element on the page.
 
 `scale` specifies the zoom level applied when rendering.
+This must be an integer, greater than or equal to 1.
 Use this to increase the resolution of the rendered cards.
 You could also just make the card width/height huge but that's not recommended.
 
-**NOTE**: this option is temporarily ignored and hardcoded as `2`
+`debug` makes the browser window used for rendering show up
+so you can inspect the page if something doesn't look right.
 
-`debug` makes the window(s) used for rendering ~~show up~~ stay open
-so you can inspect the page(s) if something doesn't look right
-(with <kbd>F12</kbd> / <kbd>⌘+⌥+i</kbd>)
-
-`callback` takes an error as an argument
-for if the process crashes or fails to start,
-but it's not guaranteed to have exported properly even in absence of an error.
-The rendering is based on a timer, so if the page doesn't finish rendering in that time, it can get messed up.
+`callback` takes an error as an argument, or null/undefined in case of success.
 
 ### `exportTabletopSimulatorSave({to, saveName, imagesURL, renderedImagesURL}, callback)`
 
@@ -99,22 +86,19 @@ and the name of the save as it appears in Tabletop Simulator's Chest.
 
 * Detect card size automatically! You shouldn't have to pass in the dimensions.
 
-* Reliably render card sets!
-Currently it's based on a timer.
-Maybe it could be based on `requestAnimationFrame` and `postMessage`.
+* Export floating text labels for each deck in the Tabletop Simulator save
 
-* Export floating text labels for each deck in the TS save
-
-* Possibly populate the cache rather than just clearing it
+* Possibly populate the Tabletop Simulator cache rather than just clearing it
   (Note that while this could make it so you could see changes in TS immediately (before commiting and pushing), it could make it unclear whether the image URLs are correct)
 
 * Export minimal rows of cards
 
 * Handle the case of >= 70 cards in a single deck
 
-* Maybe allow starting card sets off rendering early
+* Maybe allow starting card sets off rendering earlier than the page load detection with a function the page can call
 
-* Maybe allow previewing the card sets directly from the renderer once rendered
+* Maybe add back the fancy loading indicator window in some way
+  * Maybe allow previewing the card sets directly from the renderer once rendered
 
 * Support decks with separate backs for each card
 
@@ -132,9 +116,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 [Node.js]: https://nodejs.org/en/
-[Electron]: https://www.electronjs.org/
+[Puppeteer]: https://github.com/puppeteer/puppeteer/
 [Tabletop Simulator]: http://store.steampowered.com/app/286160/
 [Open an issue]: https://github.com/1j01/card-game-generator/issues/new
-[some playing cards]: https://github.com/1j01/techy-playing-cards
+[techy-playing-cards]: https://github.com/1j01/techy-playing-cards
 [Systemocracy]: https://github.com/1j01/systemocracy
 [Prosperity]: https://github.com/1j01/prosperity
