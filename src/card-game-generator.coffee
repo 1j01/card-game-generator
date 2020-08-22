@@ -85,6 +85,7 @@ class CardGameGenerator
 								document.head.appendChild(style)
 							, css
 							await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
+							await pup_page.close()
 					)
 					# TODO: think about early-failure for task running
 					runTasks = if parallel then runTasksInParallel else runTasksInSerial
