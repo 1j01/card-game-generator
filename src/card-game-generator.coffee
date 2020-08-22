@@ -100,15 +100,16 @@ class CardGameGenerator
 	
 	exportTabletopSimulatorSave: ({to, saveName, imagesURL, renderedImagesURL}, callback)->
 		to = path.resolve(to)
-		mkdirp to, (err)=>
-			return callback err if err
-			
-			save = create_save({@cardSets, @counters, imagesURL, renderedImagesURL})
-			
-			@ts_save_json = JSON.stringify(save, null, 2)
-			@ts_save_filename = "#{saveName}.json"
-			
-			fs.writeFile "#{to}/#{@ts_save_filename}", @ts_save_json, "utf8", callback
+		mkdirp(to).then(
+			=>
+				save = create_save({@cardSets, @counters, imagesURL, renderedImagesURL})
+				
+				@ts_save_json = JSON.stringify(save, null, 2)
+				@ts_save_filename = "#{saveName}.json"
+				
+				fs.writeFile "#{to}/#{@ts_save_filename}", @ts_save_json, "utf8", callback
+			(err)=> callback(err)
+		)
 	
 	exportSaveToTabletopSimulatorChest: ->
 		unless @ts_save_json
