@@ -65,7 +65,7 @@ class CardGameGenerator
 			.listen(port, ->
 				console.log "Server running on #{port}..."
 				(do ->
-					browser = await puppeteer.launch({devtools: true})
+					browser = await puppeteer.launch({devtools: debug})
 
 					render_card_set = (set_name)->
 						n_h = if set_name is "Back" then 1 else 10
