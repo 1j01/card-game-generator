@@ -60,7 +60,7 @@ class CardGameGenerator
 		@cardSets ?= {}
 		@counters ?= {}
 	
-	renderCards: ({page, to, cardWidth, cardHeight, scale, debug}, callback)->
+	renderCards: ({page, to, scale, debug}, callback)->
 		scale ?= 1
 		css = get_css({scale})
 
@@ -77,21 +77,29 @@ class CardGameGenerator
 			browser = await puppeteer.launch({devtools: debug})
 
 			render_card_set = (set_name)->
-				n_h = if set_name is "Back" then 1 else 10
-				n_v = if set_name is "Back" then 1 else 7
-				width = cardWidth * n_h * scale
-				height = cardHeight * n_v * scale
+				n_cols = if set_name is "Back" then 1 else 10
+				n_rows = if set_name is "Back" then 1 else 7
 				await mkdirp(to)
 				pup_page = await browser.newPage()
 				await pup_page.goto("http://127.0.0.1:#{port}##{set_name}", waitUntil: 'networkidle0')
-				await pup_page.setViewport({width, height})
-				# TODO: is deviceScaleFactor better than CSS zoom?
-				await pup_page.evaluate (css)->
+				await pup_page.setViewport({width: 20000, height: 20000})
+				{cardWidth, cardHeight} = await pup_page.evaluate (css)->
 					style = document.createElement("style")
 					style.type = "text/css"
 					style.appendChild(document.createTextNode(css))
 					document.head.appendChild(style)
+
+					cardEl = document.querySelector(".card")
+					cardWidth = cardEl.offsetWidth
+					cardHeight = cardEl.offsetHeight
+					{cardWidth, cardHeight}
 				, css
+
+				width = cardWidth * n_cols * scale
+				height = cardHeight * n_rows * scale
+				# console.log({cardWidth, cardHeight, n_cols, n_rows, scale, width, height})
+				# TODO: is deviceScaleFactor better than CSS zoom?
+				await pup_page.setViewport({width, height})
 				await pup_page.screenshot({path: path.join(to, "#{set_name}.png")})
 				await pup_page.close()
 

@@ -21,6 +21,11 @@ Nothing here yet!
 
 </details>
 
+[0.9.0]: https://github.com/1j01/card-game-generator/compare/v0.8.0...v0.9.0
+## [0.9.0] - 2020-08-22
+### Changed
+- `cardWidth` and `cardHeight` are no longer needed, this is detected automatically by looking at the `offsetWidth` and `offsetHeight` of an element with the CSS class `card`
+
 [0.8.0]: https://github.com/1j01/card-game-generator/compare/v0.7.0...v0.8.0
 ## [0.8.0] - 2020-08-21
 ### Changed

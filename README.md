@@ -33,19 +33,21 @@ It can be an object with ignored keys and values like
 or
 `{type: "tile", obverse: "images/lemon.png", reverse: "images/lime.png"}`
 
-### `renderCards({page, to, cardWidth, cardHeight, scale, debug}, callback)`
+### `renderCards({page, to, scale, debug}, callback)`
 
 Starts a renderer process with [Puppeteer][], and calls back when it exits.
 
-`page` should be a path pointing to an `html` file which displays the cards.
+`page` should be a path pointing to an `html` file which displays the cards.  
 It will be served over HTTP to avoid issues with with the `file:` protocol.
 
-`to` specifies the output directory, e.g.
-`export/images` or `images/export`
-(Directories are created automatically.)
+The `location.hash` will have the card set name in it so you can switch between rendering different card sets on one page.
 
-`cardWidth`/`Height` must be the exact width and height in pixels of each individual card.
-You can measure this with Inspect Element on the page.
+There must be one or more elements with the CSS class `card`.  
+These elements must have an integer width and height in pixels.
+
+`to` specifies the output directory, e.g.
+`export/images` or `images/export`.
+Directories are created automatically.
 
 `scale` specifies the zoom level applied when rendering.
 This must be an integer, greater than or equal to 1.
